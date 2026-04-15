@@ -16,7 +16,7 @@ SILENCE_THREHOLD = 0.01
 
 class VoiceInput:
     def __init__(self, model_size: str = "small"):
-        print(f"[M] Carregando whispe ({model_size})...", end=" ", flush=True)
+        print(f"[M] Carregando whisper ({model_size})...", end=" ", flush=True)
         self.model = whisper.load_model(model_size)
         print("Pronto")
     
@@ -42,7 +42,7 @@ class VoiceInput:
             # Salva temporariamente e transcreve
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp:
                 sf.write(temp.name, audio, SAMPLE_RATE)
-                result = self.model.transcrible(
+                result = self.model.transcribe(
                     temp.name,
                     language="pt",
                     fp16=False
