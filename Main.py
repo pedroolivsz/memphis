@@ -26,7 +26,7 @@ def main():
     
     memory = Memory()
     brain = Brain(memory)
-    tts = SpeechOutput("models/pt_BR-faber-medium.onnx")
+    tts = SpeechOutput()
     voice = VoiceInput()
 
     tts.speak("Memphis online. Como posso ajudar?")
