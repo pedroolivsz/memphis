@@ -7,10 +7,20 @@ Assistente pessoal de IA inspirado no JARVIS — **100% gratuito**.
 | Componente | Tecnologia | Custo |
 |---|---|---|
 | LLM | Groq API (Llama 3.3 70B) | Gratuito |
-| Voz → Texto | Whisper `small` (local) | Gratuito |
+| Texto → Voz | Piper TTS (neural, offline) + fallback espeak | Gratuito |
 | Texto → Voz | pyttsx3 + espeak-ng (local) | Gratuito |
 | Memória | SQLite local | Gratuito |
  
+---
+
+## ✨ Destaques
+
+- IA com Llama 3.3 70B (via Groq)
+- Reconhecimento de voz local com Whisper
+- Voz neural offline com Piper (alta qualidade)
+- Fallback automático de voz (robustez)
+- Memória persistente com SQLite
+
 ---
  
 ## Setup (Linux)
@@ -48,8 +58,18 @@ Ou exporte diretamente no terminal:
 ```bash
 export GROQ_API_KEY="sua_chave_aqui"
 ```
+
+### 4. Instalar Piper (voz neural offline)
+
+Baixe o binário:
+
+```bash
+wget https://github.com/rhasspy/piper/releases/latest/download/piper_linux_x86_64.tar.gz
+tar -xvf piper_linux_x86_64.tar.gz
+mv piper memphis/
+chmod +x piper
  
-### 4. Rodar
+### 5. Rodar
  
 ```bash
 source .venv/bin/activate
@@ -77,8 +97,10 @@ memphis/
 │   ├── brain.py         # LLM via Groq
 │   ├── voice.py         # STT com Whisper
 │   ├── speech.py        # TTS com pyttsx3
+│   ├── piper_engine.py  # TTS neural
 │   └── memory.py        # Memória SQLite
-├── modules/             # Futuras habilidades (busca web, apps, etc.)
+├── models/
+│   └── pt_BR-faber-medium.onnx
 └── data/
     └── memphis.db       # Histórico de conversas (gerado automaticamente)
 ```
