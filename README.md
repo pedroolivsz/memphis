@@ -1,6 +1,18 @@
 # Memphis 
  
-Assistente pessoal de IA inspirado no JARVIS — **100% gratuito e offline-first**, com voz neural local.
+Assistente pessoal de IA inspirado no JARVIS — **offline-first com capacidade de busca online em tempo real**.
+
+---
+
+## Inteligência de decisão
+
+O Memphis não apenas responde perguntas — ele decide como responder:
+
+- Usa conhecimento próprio quando suficiente
+- Realiza buscas na web quando necessário
+- Combina múltiplas fontes para gerar respostas
+
+Isso permite respostas mais precisas e atualizadas.
  
 ## Stack
  
@@ -10,6 +22,7 @@ Assistente pessoal de IA inspirado no JARVIS — **100% gratuito e offline-first
 | Texto → Voz | Piper TTS (neural, offline) + fallback espeak | Gratuito |
 | Texto → Voz | pyttsx3 + espeak-ng (local) | Gratuito |
 | Memória | SQLite local | Gratuito |
+| Busca Web | DuckDuckGo (sem API) + scraping leve | Gratuito |
  
 ---
 
@@ -20,6 +33,34 @@ Assistente pessoal de IA inspirado no JARVIS — **100% gratuito e offline-first
 - Voz neural offline com Piper (alta qualidade)
 - Fallback automático de voz (robustez)
 - Memória persistente com SQLite
+- Busca inteligente na web em tempo real (sem API paga)
+- Capacidade de decidir quando pesquisar ou responder com conhecimento próprio
+- Extração automática de conteúdo de páginas (não só links)
+
+---
+
+## Módulo de Busca Web
+
+O Memphis possui um sistema integrado de busca na web totalmente gratuito, utilizando DuckDuckGo sem necessidade de API.
+
+### Funcionalidades
+
+- Busca automática quando necessário (decisão feita pela IA)
+- Extração de conteúdo relevante das páginas
+- Síntese inteligente dos resultados
+- Sem dependência de serviços pagos
+
+### Como funciona
+
+1. O Memphis detecta quando precisa de informação atualizada
+2. Executa uma busca usando DuckDuckGo
+3. Extrai conteúdo das páginas encontradas
+4. Sintetiza a resposta para o usuário
+
+### Exemplo de uso
+
+Usuário: Passou algum jogo na Globo hoje?
+Memphis: (busca automaticamente e responde com base nos resultados)
 
 ---
  
@@ -100,19 +141,36 @@ memphis/
 │   └── memory.py        # Memória SQLite
 ├── models/
 │   └── pt_BR-faber-medium.onnx
+├── modules/
+│   └── web_search.py   # Busca na web (DuckDuckGo    scraping)
 └── data/
-    └── memphis.db       # Histórico de conversas (gerado automaticamente)
+│    └── memphis.db       # Histórico de conversas (gerado automaticamente)
 ```
 
 ```
+
+---
+
+## Ferramentas disponíveis
+
+O Memphis utiliza um sistema de ferramentas integradas que podem ser acionadas automaticamente pela IA.
+
+### Atualmente disponíveis:
+
+- `buscar_na_web` → pesquisa informações atualizadas na internet
+
+A IA decide automaticamente quando utilizar cada ferramenta.
+
 ---
  
 ## Próximos passos
  
-- [ ] **Módulo de busca web** — DuckDuckGo API (gratuita)
-- [ ] **Controle de apps** — abrir terminal, browser, música
-- [ ] **Wake word** — activar por voz sem precisar pressionar Enter
-- [ ] **Interface web** — dashboard leve em Flask
+- [ ] Controle de apps — abrir terminal, browser, música
+- [ ] Wake word — activar por voz sem precisar pressionar Enter
+- [ ] Interface web — dashboard leve em Flask
+- [ ] Cache de buscas para reduzir latência
+- [ ] Busca semântica (melhor relevância)
+- [ ] Suporte a múltiplas ferramentas (automação local)
  
 ---
  
