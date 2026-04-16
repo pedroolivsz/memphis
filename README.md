@@ -1,6 +1,6 @@
-# Memphis 🧠
+# Memphis 
  
-Assistente pessoal de IA inspirado no JARVIS — **100% gratuito**.
+Assistente pessoal de IA inspirado no JARVIS — **100% gratuito e offline-first**, com voz neural local.
  
 ## Stack
  
@@ -13,7 +13,7 @@ Assistente pessoal de IA inspirado no JARVIS — **100% gratuito**.
  
 ---
 
-## ✨ Destaques
+## Destaques
 
 - IA com Llama 3.3 70B (via Groq)
 - Reconhecimento de voz local com Whisper
@@ -71,10 +71,9 @@ chmod +x piper
  
 ### 5. Rodar
  
-```bash
+bash
 source .venv/bin/activate
 python main.py
-```
  
 ---
  
@@ -104,7 +103,8 @@ memphis/
 └── data/
     └── memphis.db       # Histórico de conversas (gerado automaticamente)
 ```
- 
+
+```
 ---
  
 ## Próximos passos
@@ -132,4 +132,8 @@ Troque `model_size="small"` por `"tiny"` em `core/voice.py` para maior velocidad
 sudo apt install -y espeak-ng-data
 # Testa a voz:
 espeak-ng -v pt-br "Memphis online"
+
+**Erro: Piper não encontrado**
+```bash
+chmod +x piper
 ```
