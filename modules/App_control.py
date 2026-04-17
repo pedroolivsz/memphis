@@ -15,6 +15,12 @@ APP_CATALOG: dict[str, dict] = {
         "candidates": ["firefox", "google-chrome", "chromium", "chromium-browser", "brave-browser", "opera"],
         "label": "navegador",
     },
+
+    "brave": {
+        "aliases": ["brave", "brave browser"],
+        "candidates": ["brave-browser"],
+        "label": "Brave",
+    },
     "firefox": {
         "aliases": ["firefox"],
         "candidates": ["firefox"],
@@ -87,7 +93,7 @@ def open_app(nome_app: str) -> str:
         label = APP_CATALOG[key]["label"]
         return f"{label} não está instalado nesse sistema"
     
-    cmd, resolved = resolved
+    cmd, label = resolved
 
     try:
         subprocess.Popen(
@@ -119,7 +125,7 @@ def open_path(path: str) -> str:
         return f"Erro ao abrir {expanded}: {e}"
 
 def open_url(url: str) -> str:
-    if not url.startswith("http://", "https://"):
+    if not url.startswith(("http://", "https://")):
         url = "https://" + url
     
     try:

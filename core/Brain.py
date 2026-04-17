@@ -230,6 +230,21 @@ class Brain:
             return list_running()
         
         return "Ferramenta desconhecida."
+    
+    def handle_direct_commands(self, user_input: str):
+        text = user_input.lower()
+
+        sites = {
+            "youtube": "https://www.youtube.com",
+            "gmail": "https://mail.google.com",
+            "github": "https://github.com",
+        }
+
+        for name, url in sites.items():
+            if name in text:
+                return self._run_tool("abrir_url", {"url": url})
+        
+        return None
 
     def think(self, user_input: str) -> str:
         history = self.memory.get_history()
@@ -237,6 +252,11 @@ class Brain:
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
         messages.extend(history)
         messages.append({"role": "user", "content": user_input})
+
+        direct = self.handle_direct_commands(user_input)
+
+        if direct:
+            return direct
 
         try:
             response = self.client.chat.completions.create(
