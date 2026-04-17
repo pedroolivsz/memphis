@@ -4,4 +4,4 @@ __pycache__/
 *.pyc
 .venv/
 get-pip.py
-venv_tts/
+.venv_tts/
