@@ -47,134 +47,106 @@ Quando usar ferramentas de controle de apps:
 - "quais apps estão abertos", "o que está rodando" → listar_rodando
 
 Se você precisar usar uma ferramenta:
-- NÃO escreva texto
-- NÃO explique
-- NÃO misture resposta com chamada
-- Retorne APENAS a chamada da função no formato JSON da API
+- Retorne APENAS JSON válido no formato da API
+- Nunca use <function=...>
+
+IMPORTANTE:
+- Os nomes dos campos das funções (JSON) devem permanecer EXATAMENTE como definidos
+- Nunca traduza nomes de parâmetros (ex: use "command", não "comando")
+
+Se a pergunta exigir dados atualizados:
+- Você DEVE usar a ferramenta buscar_na_web
+- Nunca responda diretamente nesses casos
 """
 
-TOOLS = [
-    {
+def make_tool(name: str, description: str, properties: dict, required: list[str] | None = None) -> dict:
+    return {
         "type": "function",
         "function": {
-            "name": "buscar_na_web",
-            "description": (
-                "Busca informações atualizadas na internet. "
-                "Use apenas quando precisar de dados recentes, notícias, preços, ou "
-                "qeventos atuais ou informações que podem ter mudado."
-            ),
+            "name": name,
+            "description": description,
             "parameters": {
                 "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": (
-                            "Consulta de busca clara e específica em português. "
-                            "Inclua contexto como ano, local ou detalhes relevantes. "
-                            "Exemplo: 'jogos de futebol hoje Globo Brasil 2026'"
-                        ),
-                        "minLength": 3
-                    }
-                },
-                "required": ["query"],
+                "properties": properties,
+                "required": required or [],
                 "additionalProperties": False
             },
         },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "abrir_app",
-            "description": "Abre um aplicativo instalado no sistema. Use para terminal, VS Code, Firefox, Chrome, gerenciador de arquivos, etc.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "app_name": {
-                        "type": "string",
-                        "description": "Nome ou apelido do app. Ex: 'terminal', 'vscode', 'firefox', 'gerenciador de arquivos'.",
-                    }
-                },
-                "required": ["app_name"],
-            },
+    }
+
+def prop(description: str, type: str = "string", required: bool = True) -> dict:
+    base = {
+        "type": type,
+        "description": description,
+    }
+
+    if required:
+        base["minLength"] = 3
+
+    return base
+
+TOOLS = [
+    make_tool(
+        name="buscar_na_web",
+        description=(
+            "Busca informações atualizadas na internet. "
+            "Use para notícias, preços, eventos recentes ou qualquer dado que possa ter mudado. "
+            "Não use se você já souber a resposta com certeza."
+            ),
+        properties={
+            "query": {
+                **prop("Consulta objetiva em português, com contexto relevante."),
+                "examples": ["jogos de hoje do Brasileirão 2026"]
+            }
         },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "abrir_url",
-            "description": "Abre uma URL no navegador padrão do sistema.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "url": {
-                        "type": "string",
-                        "description": "URL completa ou domínio. Ex: 'https://github.com' ou 'youtube.com'.",
-                    }
-                },
-                "required": ["url"],
-            },
+        required=["query"],
+    ),
+    make_tool(
+        name="abrir_app",
+        description="Abre um aplicativo instalado no sistema. Use para terminal, VS Code, Firefox, Chrome, Brave, gerenciador de arquivos, etc.",
+        properties={
+            "app_name": prop("Nome ou apelido do app. Ex: 'terminal', 'vscode', 'firefox', 'gerenciador de arquivos'.")
         },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "abrir_caminho",
-            "description": "Abre um arquivo ou pasta com o aplicativo padrão do sistema.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "path": {
-                        "type": "string",
-                        "description": "Caminho absoluto ou relativo. Ex: '~/Downloads', '/home/user/projeto'.",
-                    }
-                },
-                "required": ["path"],
-            },
+        required=["app_name"],
+    ),
+    make_tool(
+        name="abrir_url",
+        description="Abre uma URL no navegador padrão do sistema.",
+        properties={
+            "url": prop("URL completa ou domínio. Ex: 'https://github.com' ou 'youtube.com'.")
         },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "abrir_terminal_com_comando",
-            "description": "Abre um terminal, opcionalmente já executando um comando shell.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "command": {
-                        "type": "string",
-                        "description": "Comando shell a executar. Deixe vazio para só abrir o terminal.",
-                        "default": "",
-                    }
-                },
-                "required": [],
-            },
+        required=["url"],
+    ),
+    make_tool(
+        name="abrir_caminho",
+        description="Abre um arquivo ou pasta com o aplicativo padrão do sistema.",
+        properties={
+            "path": prop("Caminho absoluto ou relativo. Ex: '~/Downloads', '/home/user/projeto'.")
         },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "fechar_app",
-            "description": "Fecha um aplicativo em execução pelo nome.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "app_name": {
-                        "type": "string",
-                        "description": "Nome do app a fechar. Ex: 'firefox', 'vscode', 'terminal'.",
-                    }
-                },
-                "required": ["app_name"],
-            },
+        required=["path"],
+    ),
+    make_tool(
+        name="abrir_terminal_com_comando",
+        description="Abre um terminal, opcionalmente já executando um comando shell.",
+        properties={
+            "command": prop("Comando shell a executar. Deixe vazio para só abrir o terminal.", required=False)
         },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "listar_rodando",
-            "description": "Lista quais apps monitorados pelo Memphis estão em execução agora.",
-            "parameters": {"type": "object", "properties": {}, "required": []},
+        required=[],
+    ),
+    make_tool(
+        name="fechar_app",
+        description="Fecha um aplicativo em execução pelo nome.",
+        properties={
+            "app_name": prop("Nome do app a fechar. Ex: 'firefox', 'vscode', 'terminal'.")
         },
-    },
+        required=["app_name"],
+    ),
+    make_tool(
+        name="listar_rodando",
+        description="Lista quais apps monitorados pelo Memphis estão em execução agora.",
+        properties={},
+        required=[],
+    ),
 ]
 
 class Brain:
@@ -235,7 +207,7 @@ class Brain:
         print(f"[Memphis] Abrindo terminal" + (f": '{cmd}'" if cmd else "") + "...")
         return open_terminal_with_command(cmd)
     
-    def _handle_clese_app(self, args):
+    def _handle_close_app(self, args):
         app = args.get("app_name", "")
         if not app:
             return "Erro: app_name não fornecido"
@@ -254,7 +226,7 @@ class Brain:
             "abrir_url": self._handle_open_url,
             "abrir_caminho": self._handle_open_path,
             "abrir_terminal_com_comando": self._handle_terminal,
-            "fechar_app": self._handle_clese_app,
+            "fechar_app": self._handle_close_app,
             "listar_rodando": self._handle_list_running
         }
         
@@ -284,25 +256,30 @@ class Brain:
         return None
 
     def think(self, user_input: str) -> str:
+        direct = self.handle_direct_commands(user_input)
+
+        if direct:
+            self.memory.add_turn(user_input, direct)
+            return direct
+
         history = self.memory.get_history()
 
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
         messages.extend(history)
         messages.append({"role": "user", "content": user_input})
-
-        direct = self.handle_direct_commands(user_input)
-
-        if direct:
-            return direct
+        
+        base_params = {
+            "model": self.model,
+            "temperature": 0.7
+        }
 
         try:
             response = self.client.chat.completions.create(
-                model=self.model,
+                **base_params,
                 messages=messages,
                 tools=TOOLS,
                 tool_choice="auto",
                 max_tokens=1024,
-                temperature=0.7,
             )
 
             msg = response.choices[0].message
@@ -313,14 +290,14 @@ class Brain:
                 return reply
             
             messages.append({
-                "role":       "assistant",
-                "content":    msg.content or "",
+                "role": "assistant",
+                "content": msg.content or "",
                 "tool_calls": [
                     {
-                        "id":       tc.id,
-                        "type":     "function",
+                        "id": tc.id,
+                        "type": "function",
                         "function": {
-                            "name":      tc.function.name,
+                            "name": tc.function.name,
                             "arguments": tc.function.arguments,
                         },
                     }
@@ -330,25 +307,28 @@ class Brain:
 
             for tc in msg.tool_calls:
                 try:
+                    if not tc.function.arguments.strip().startswith("{"):
+                        raise ValueError("Formato inválido de argumentos")
+                    
                     args = json.loads(tc.function.arguments)
-                
+                    tool_result = self._run_tool(tc.function.name, args)
                 except json.JSONDecodeError:
-                    print("[ERRO] Argumentos inválidos: ", tc.function.arguments)
-                    continue
-                
-                tool_result = self._run_tool(tc.function.name, args)
+                    tool_result = f"[Erro] Argumentos inválidos para '{tc.function.name}': {tc.function.arguments}"
+                    print(f"[Memphis] {tool_result}")
+                except Exception as e:
+                    tool_result = f"[Erro] Falha ao executar '{tc.function.name}': {e}"
+                    print(f"[Memphis] {tool_result}")
  
                 messages.append({
-                    "role":         "tool",
+                    "role": "tool",
                     "tool_call_id": tc.id,
-                    "content":      tool_result,
+                    "content": tool_result,
                 })
 
             response2 = self.client.chat.completions.create(
-                model=self.model,
+                **base_params,
                 messages=messages,
                 max_tokens=768,
-                temperature=0.7
             )
 
             reply = response2.choices[0].message.content.strip()
@@ -356,4 +336,18 @@ class Brain:
             return reply
         
         except Exception as e:
-            return f"Erro ao processar: {e}"
+            msg_error = f"Erro ao processar: {e}"
+            err_str = str(e)
+            if "tool_use_failed" in err_str or "failed_generation" in err_str:
+                print("[Memphis][WARN] Modelo falhou ao chamar tool — convertendo para resposta normal...")
+
+                response = self.client.chat.completions.create(
+                    **base_params,
+                    messages=messages,
+                    max_tokens=1024,
+                )
+                reply = response.choices[0].message.content.strip()
+                return reply
+            
+            print(f"[Memphis][Erro crítico] {msg_error}")
+            return msg_error
