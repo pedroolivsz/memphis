@@ -5,10 +5,10 @@
 
 import sys
 import threading
-from core.Brain import Brain
-from core.Voice import VoiceInput
-from core.Speech import SpeechOutput
-from core.Memory import Memory
+from memphis_core.core.Brain import Brain
+from memphis_core.core.Voice import VoiceInput
+from memphis_core.core.Speech import SpeechOutput
+from memphis_core.core.Memory import Memory
 
 BANNER = """
   ███╗   ███╗███████╗███╗   ███╗██████╗ ██╗  ██╗██╗███████╗
