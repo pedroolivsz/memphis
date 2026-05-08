@@ -29,7 +29,6 @@ class PiperEngine:
 
                 audio = process.communicate(input=text.encode())[0]
 
-                # toca áudio usando aplay (Linux)
                 play = subprocess.Popen(
                     ["aplay", "-r", "22050", "-f", "S16_LE", "-t", "raw"],
                     stdin=subprocess.PIPE

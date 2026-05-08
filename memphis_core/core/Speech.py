@@ -1,22 +1,15 @@
 import pyttsx3
 import threading
-from .Piper_engine import PiperEngine
+from enum import Enum
+
+class TTSMode(Enum):
+    ESPEAK = "espeak"
 
 
 class SpeechOutput:
-    def __init__(self):
+    def __init__(self, model_path: str = "models/pt_BR-faber-medium.onnx"):
         self._lock = threading.Lock()
-
-        # tenta iniciar Piper
-        try:
-            self.engine = PiperEngine(
-                model_path="models/pt_BR-faber-medium.onnx"
-            )
-            self.mode = "piper"
-
-        except Exception:
-            self.engine = self._init_espeak()
-            self.mode = "espeak"
+        self.engine = self._init_espeak()
 
     def _init_espeak(self):
         engine = pyttsx3.init()
@@ -43,11 +36,8 @@ class SpeechOutput:
 
         with self._lock:
             try:
-                if self.mode == "piper":
-                    self.engine.speak(text)
-                else:
-                    self.engine.say(text)
-                    self.engine.runAndWait()
+                self.engine.say(text)
+                self.engine.runAndWait()
 
             except Exception as e:
                 print(f"[ERRO TTS] {e}")
