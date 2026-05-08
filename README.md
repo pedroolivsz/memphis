@@ -1,197 +1,193 @@
-# Memphis 
- 
-Assistente pessoal de IA inspirado no JARVIS — **offline-first com capacidade de busca online em tempo real**.
+#  Memphis IA
+
+> Assistente pessoal inteligente com voz, memória persistente e controle do sistema — rodando 100% local.
 
 ---
 
-## Inteligência de decisão
-
-O Memphis não apenas responde perguntas — ele decide como responder:
-
-- Usa conhecimento próprio quando suficiente
-- Realiza buscas na web quando necessário
-- Combina múltiplas fontes para gerar respostas
-
-Isso permite respostas mais precisas e atualizadas.
- 
-## Stack
- 
-| Componente | Tecnologia | Custo |
-|---|---|---|
-| LLM | Groq API (Llama 3.3 70B) | Gratuito |
-| Texto → Voz | Piper TTS (neural, offline) + fallback espeak | Gratuito |
-| Texto → Voz | pyttsx3 + espeak-ng (local) | Gratuito |
-| Memória | SQLite local | Gratuito |
-| Busca Web | DuckDuckGo (sem API) + scraping leve | Gratuito |
- 
----
-
-## Destaques
-
-- IA com Llama 3.3 70B (via Groq)
-- Reconhecimento de voz local com Whisper
-- Voz neural offline com Piper (alta qualidade)
-- Fallback automático de voz (robustez)
-- Memória persistente com SQLite
-- Busca inteligente na web em tempo real (sem API paga)
-- Capacidade de decidir quando pesquisar ou responder com conhecimento próprio
-- Extração automática de conteúdo de páginas (não só links)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
 
-## Módulo de Busca Web
+## Funcionalidades
 
-O Memphis possui um sistema integrado de busca na web totalmente gratuito, utilizando DuckDuckGo sem necessidade de API.
-
-### Funcionalidades
-
-- Busca automática quando necessário (decisão feita pela IA)
-- Extração de conteúdo relevante das páginas
-- Síntese inteligente dos resultados
-- Sem dependência de serviços pagos
-
-### Como funciona
-
-1. O Memphis detecta quando precisa de informação atualizada
-2. Executa uma busca usando DuckDuckGo
-3. Extrai conteúdo das páginas encontradas
-4. Sintetiza a resposta para o usuário
-
-### Exemplo de uso
-
-Usuário: Passou algum jogo na Globo hoje?
-Memphis: (busca automaticamente e responde com base nos resultados)
+- **Entrada por voz** — Transcrição local com Whisper (OpenAI)
+- **Saída por voz** — Síntese de fala em português via eSpeak / Piper TTS
+- **LLM inteligente** — Integrado ao [Groq API](https://console.groq.com) com o modelo `llama-3.3-70b-versatile` (gratuito)
+- **Memória persistente** — Histórico de conversas armazenado em SQLite
+- **Busca na web** — Pesquisa via DuckDuckGo com scraping leve de conteúdo
+- **Controle de apps** — Abre, fecha e gerencia aplicativos Linux via subprocess
+- **Interface gráfica** — GUI moderna com CustomTkinter
 
 ---
- 
-## Setup (Linux)
- 
-### 1. Dependências do sistema
- 
-```bash
-sudo apt update
-sudo apt install -y python3-pip python3-venv espeak-ng libespeak-ng-dev portaudio19-dev ffmpeg
+
+## 🏗️ Arquitetura
+
 ```
- 
-### 2. Ambiente virtual Python
- 
+memphis_core/
+├── core/
+│   ├── Brain.py          # LLM + tool calling (Groq API)
+│   ├── Memory.py         # Memória persistente (SQLite)
+│   ├── Speech.py         # Saída de voz (eSpeak / pyttsx3)
+│   ├── Voice.py          # Entrada de voz (Whisper)
+│   └── controller/
+│       └── MemphisController.py  # Orquestra todos os módulos
+├── modules/
+│   ├── App_control.py    # Controle de aplicativos Linux
+│   └── Web_search.py     # Busca via DuckDuckGo
+├── data/
+│   └── memphis.db        # Banco de dados SQLite (gerado em runtime)
+models/
+└── pt_BR-faber-medium.onnx  # Modelo de voz Piper (opcional)
+gui.py                    # Interface gráfica (CustomTkinter)
+```
+
+---
+
+## Instalação
+
+### Pré-requisitos
+
+- Python 3.11+
+- Linux (testado em Ubuntu/Debian e derivados)
+- `aplay` (pacote `alsa-utils`) para reprodução de áudio com Piper
+
+### 1. Clone o repositório
+
 ```bash
+git clone https://github.com/pedroolivsz/memphis.git
 cd memphis
-python3 -m venv .venv
+```
+
+### 2. Crie e ative um ambiente virtual
+
+```bash
+python -m venv .venv
 source .venv/bin/activate
+```
+
+### 3. Instale as dependências
+
+```bash
 pip install -r requirements.txt
 ```
- 
-### 3. Chave Groq (gratuita)
- 
-1. Acesse https://console.groq.com e crie uma conta
-2. Gere uma API Key
-3. Configure a variável de ambiente:
- 
-```bash
-cp .env.example .env
-# Edite o .env e cole sua chave
-nano .env
-```
- 
-Ou exporte diretamente no terminal:
- 
-```bash
-export GROQ_API_KEY="sua_chave_aqui"
+
+### 4. Configure a chave da API
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+GROQ_API_KEY=sua_chave_aqui
 ```
 
-### 4. Instalar Piper (voz neural offline)
+> Obtenha sua chave gratuitamente em [console.groq.com](https://console.groq.com).
 
-Baixe o binário:
+### 5. (Opcional) Configure o Piper TTS
+
+Para uma voz em português mais natural, baixe o binário do [Piper](https://github.com/rhasspy/piper/releases) e o modelo de voz:
 
 ```bash
-wget https://github.com/rhasspy/piper/releases/latest/download/piper_linux_x86_64.tar.gz
-tar -xvf piper_linux_x86_64.tar.gz
-mv piper memphis/
-chmod +x piper
- 
-### 5. Rodar
- 
-bash
-source .venv/bin/activate
-python main.py
- 
+# Coloque o binário na raiz:
+./piper
+
+# Coloque o modelo em:
+models/pt_BR-faber-medium.onnx
+```
+
+Sem o Piper, o Memphis usará o eSpeak automaticamente como fallback.
+
 ---
- 
+
 ## Como usar
- 
-- **Pressione Enter** sem digitar nada → Memphis ouve pelo microfone (6 segundos)
-- **Digite sua mensagem** → Memphis responde em texto e voz
-- **`sair`** ou **Ctrl+C** → encerra o programa
- 
----
- 
-## Estrutura do projeto
- 
-```
-memphis/
-├── main.py              # Ponto de entrada
-├── requirements.txt
-├── .env.example
-├── core/
-│   ├── brain.py         # LLM via Groq
-│   ├── voice.py         # STT com Whisper
-│   ├── speech.py        # TTS com pyttsx3
-│   ├── piper_engine.py  # TTS neural
-│   └── memory.py        # Memória SQLite
-├── models/
-│   └── pt_BR-faber-medium.onnx
-├── modules/
-│   └── web_search.py   # Busca na web (DuckDuckGo    scraping)
-└── data/
-│    └── memphis.db       # Histórico de conversas (gerado automaticamente)
-```
 
-```
+### Interface gráfica
 
----
-
-## Ferramentas disponíveis
-
-O Memphis utiliza um sistema de ferramentas integradas que podem ser acionadas automaticamente pela IA.
-
-### Atualmente disponíveis:
-
-- `buscar_na_web` → pesquisa informações atualizadas na internet
-
-A IA decide automaticamente quando utilizar cada ferramenta.
-
----
- 
-## Próximos passos
- 
-- [ ] Controle de apps — abrir terminal, browser, música
-- [ ] Wake word — activar por voz sem precisar pressionar Enter
-- [ ] Interface web — dashboard leve em Flask
-- [ ] Cache de buscas para reduzir latência
-- [ ] Busca semântica (melhor relevância)
-- [ ] Suporte a múltiplas ferramentas (automação local)
- 
----
- 
-## Solução de problemas
- 
-**Erro de microfone:**
 ```bash
-# Lista dispositivos de áudio disponíveis
-python3 -c "import sounddevice; print(sounddevice.query_devices())"
+python gui.py
 ```
- 
-**Whisper lento:**
-Troque `model_size="small"` por `"tiny"` em `core/voice.py` para maior velocidade (menos precisão).
- 
-**TTS sem voz em português:**
-```bash
-sudo apt install -y espeak-ng-data
-# Testa a voz:
-espeak-ng -v pt-br "Memphis online"
 
-**Erro: Piper não encontrado**
-```bash
-chmod +x piper
+### Linha de comando (modo texto)
+
+```python
+from memphis_core.core.controller.MemphisController import MemphisController
+
+memphis = MemphisController()
+resposta = memphis.process_text("Qual a previsão do tempo para hoje?")
+print(resposta)
 ```
+
+### Modo voz
+
+```python
+texto, resposta = memphis.process_voice()
+```
+
+---
+
+## Ferramentas disponíveis (Tool Calling)
+
+O Memphis usa *function calling* nativo da API para acionar ferramentas automaticamente com base no contexto da conversa:
+
+| Ferramenta | Descrição |
+|---|---|
+| `buscar_na_web` | Pesquisa no DuckDuckGo com scraping de conteúdo |
+| `abrir_app` | Abre aplicativos (Firefox, VS Code, terminal, etc.) |
+| `abrir_url` | Abre uma URL no navegador padrão |
+| `abrir_caminho` | Abre arquivo ou pasta com app padrão do sistema |
+| `abrir_terminal_com_comando` | Abre terminal, opcionalmente executando um comando |
+| `fechar_app` | Fecha um aplicativo em execução |
+| `listar_rodando` | Lista apps monitorados que estão em execução |
+
+---
+
+## Exemplos de uso
+
+```
+Você: Quais são as notícias de hoje?
+Memphis: [busca na web e resume os resultados]
+
+Você: Abre o VS Code
+Memphis: VS Code aberto com sucesso.
+
+Você: Abre o terminal e roda git status
+Memphis: Terminal aberto executando: git status
+
+Você: Fecha o Firefox
+Memphis: Aplicativo 'firefox' fechado.
+
+Você: O que está rodando?
+Memphis: Rodando agora: terminal, VS Code
+```
+
+---
+
+## Configuração avançada
+
+| Parâmetro | Local | Padrão | Descrição |
+|---|---|---|---|
+| `MAX_HISTORY` | `Memory.py` | `20` | Turnos de histórico enviados ao LLM |
+| `model` | `Brain.py` | `llama-3.3-70b-versatile` | Modelo Groq utilizado |
+| `model_size` | `Voice.py` | `base` | Modelo Whisper (`tiny`, `small`, `medium`) |
+| `DURATION` | `Voice.py` | `6` | Duração da gravação em segundos |
+| `MAX_RESULT` | `Web_search.py` | `5` | Número de resultados de busca |
+
+---
+
+## 📦 Dependências principais
+
+```
+groq
+openai-whisper
+sounddevice
+soundfile
+pyttsx3
+customtkinter
+duckduckgo-search
+python-dotenv
+numpy
+```
+
+---
+
+## 📄 Licença
+
+Distribuído sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.

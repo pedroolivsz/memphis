@@ -15,7 +15,7 @@ DURATION = 6
 SILENCE_THREHOLD = 0.01
 
 class VoiceInput:
-    def __init__(self, model_size: str = "small"):
+    def __init__(self, model_size: str = "base"):
         print(f"[M] Carregando whisper ({model_size})...", end=" ", flush=True)
         self.model = whisper.load_model(model_size)
         print("Pronto")
