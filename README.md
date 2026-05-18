@@ -20,7 +20,7 @@
 
 ---
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 ```
 memphis_core/
